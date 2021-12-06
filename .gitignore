@@ -1,0 +1,5 @@
+/.idea/
+/front/node_modules
+/front/dist/
+/front/node/
+/docker/deploy/

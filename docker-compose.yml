@@ -1,0 +1,45 @@
+#docker-compose -p hack up -d
+version: "3.7"
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongo:27017/
+  # backend:
+    # image: backend-spring
+    # depends_on:
+      # - database
+    # ports: 
+      # - "8080:8080"
+    # build:
+      # context: .
+      # dockerfile: deploy/back-dockerfile
+  # database:
+    # image: kaneeldias/hsqldb
+    # ports: 
+      # - "9001:9001"
+    # environment:
+      # HSQLDB_USER: sa
+      # HSQLDB_PASSWORD: 123456789
+      # HSQLDB_DATABASE_ALIAS: spring
+  # frontend:
+    # image: nginx
+    # ports:
+      # - "80:80"
+    # build:
+      # context: .
+      # dockerfile: deploy/front-dockerfile
