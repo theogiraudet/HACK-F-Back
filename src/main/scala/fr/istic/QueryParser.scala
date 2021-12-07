@@ -26,7 +26,7 @@ object QueryParser extends RegexParsers {
 
   private def path: Parser[DataPath] = """[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*""".r >> {
     case path if DataPath.of(path).nonEmpty => success(DataPath.of(path).get)
-    case path => failure(path + " is not a valid path.")
+    case path => failure(s"'$path' is not a valid path.")
   }
 
   private def value = integer | boolean | string

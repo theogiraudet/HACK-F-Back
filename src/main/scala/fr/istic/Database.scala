@@ -11,18 +11,19 @@ import scala.util.Try
 
 object Database {
 
-  private val url = "mongodb://root:root@localhost:27017/?authSource=admin"
+  private var url = ""
   private val databaseName = "hack"
   private val collectionName = "test"
-  private val collection: MongoCollection[Document] = {
+  lazy private val collection: MongoCollection[Document] = {
     val mongoClient = MongoClient(url)
     val database = mongoClient.getDatabase(databaseName)
     val collection = database.getCollection[Document](collectionName)
     collection
   }
 
-  def init(): Unit = {
-    val future = collection.find().map(_ - "_id").toFuture().map(d => DataPath.init(d.map(x => getSchema(x)).reduce(merge)))
+  def init(url: String): Unit = {
+    this.url = url
+    val future = collection.find().map(_ - "_id").toFuture().map(d => DataPath.init(Some(d.map(x => getSchema(x)).reduce(merge))))
     Await.ready(future, Duration.Inf)
   }
 

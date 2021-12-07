@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.istic.Database;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import scala.util.Failure;
 
 import javax.annotation.PostConstruct;
+import java.util.logging.Logger;
 
 @RestController
 @Controller
@@ -21,9 +23,13 @@ public class ArtistResource {
     @Autowired
     private ObjectMapper mapper;
 
+    @Value( "${database.url}" )
+    private String url;
+
     @PostConstruct
     private void initialize() {
-        Database.init();
+        Logger.getGlobal().info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + url);
+        Database.init(url);
     }
 
     @GetMapping(value = "/artists", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -31,7 +37,7 @@ public class ArtistResource {
         final var result = Database.read(filter);
         if (result.isFailure()) {
             final var msg = ((Failure<String>) result).exception().getMessage();
-            return ResponseEntity.badRequest().body(msg);
+            return ResponseEntity.badRequest().body("{ \"error\": \"" +  msg + "\"}");
         } else {
             final var msg = result.get();
             final Object json = mapper.readValue(msg, Object.class);
