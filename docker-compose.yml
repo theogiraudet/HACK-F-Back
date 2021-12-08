@@ -18,32 +18,25 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: root
-      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@148.60.11.201:27017/
 
   backend:
     image: backend-hack
     ports:
-      - "80:8080"
+      - "8080:8081"
     build:
       context: .
       dockerfile: deploy/back-dockerfile
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://mongo-express:8181"]
+      test: ["CMD", "curl", "-f", "http://mongo-express:8081"]
       interval: 30s
       timeout: 10s
       retries: 5
-  # database:
-    # image: kaneeldias/hsqldb
-    # ports: 
-      # - "9001:9001"
-    # environment:
-      # HSQLDB_USER: sa
-      # HSQLDB_PASSWORD: 123456789
-      # HSQLDB_DATABASE_ALIAS: spring
-  # frontend:
-    # image: nginx
-    # ports:
-      # - "80:80"
-    # build:
-      # context: .
-      # dockerfile: deploy/front-dockerfile
+      
+  frontend:
+    image: nginx
+    build:
+      context: .
+      dockerfile: deploy/reverse-proxy
+    ports:
+      - "80:80"

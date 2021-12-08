@@ -4,6 +4,7 @@ import fr.istic.Tree.{getSchema, merge}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.{Document, MongoClient, MongoCollection}
 
+import java.util.logging.Logger
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -21,6 +22,8 @@ object Database {
     collection
   }
 
+  private val logger = Logger.getLogger("Artist Ressource REST")
+
   def init(url: String): Unit = {
     this.url = url
     val future = collection.find().map(_ - "_id").toFuture().map(d => DataPath.init(Some(d.map(x => getSchema(x)).reduce(merge))))
@@ -28,10 +31,12 @@ object Database {
   }
 
   def read(query: String): Try[String] = {
-    QueryParser.analyserFilter(query)
+    val result = QueryParser.analyserFilter(query)
       .map(FiltersToMongo.toMongo)
       .flatMap(awaitGet)
       .map("[" + _.toList.map(x => x.toJson).mkString(",") +" ]")
+    logger.info(result.toString)
+    result
   }
 
   private def awaitGet(bson: Bson) = {

@@ -2,13 +2,17 @@ package fr.istic
 
 import fr.istic.Tree.{Leaf, Node, Tree}
 
+import java.util.logging.Logger
+
 case class DataPath private (path: String)
 
 object DataPath {
 
   var tree: Option[Tree] = None
+  private val logger = Logger.getLogger("DataPath")
 
   def init(tree: Option[Tree]): Unit = {
+    logger.info("Initialize Tree's Datapath to " + tree)
     this.tree = tree
   }
 

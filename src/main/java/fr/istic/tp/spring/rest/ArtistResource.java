@@ -20,6 +20,8 @@ import java.util.logging.Logger;
 @Controller
 public class ArtistResource {
 
+    private final Logger logger = Logger.getLogger("Artist Ressource REST");
+
     @Autowired
     private ObjectMapper mapper;
 
@@ -28,12 +30,13 @@ public class ArtistResource {
 
     @PostConstruct
     private void initialize() {
-        Logger.getGlobal().info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + url);
+        logger.info("Initialise database API...");
         Database.init(url);
     }
 
     @GetMapping(value = "/artists", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getArtists(@RequestParam String filter) throws JsonProcessingException {
+        logger.info("Receive request on /artists");
         final var result = Database.read(filter);
         if (result.isFailure()) {
             final var msg = ((Failure<String>) result).exception().getMessage();
