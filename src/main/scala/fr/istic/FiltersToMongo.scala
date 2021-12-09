@@ -23,6 +23,7 @@ object FiltersToMongo {
       case a notIn list => Some(Filters.nin(a.path, list:_*))
       case a && b => toMongo(a).zip(toMongo(b)).map(x => Filters.and(x._1, x._2))
       case a || b => toMongo(a).zip(toMongo(b)).map(x => Filters.or(x._1, x._2))
+      case noFilter => None
     }
   }
 
