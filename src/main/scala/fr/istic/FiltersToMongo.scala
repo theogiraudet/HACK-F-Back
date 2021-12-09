@@ -21,8 +21,8 @@ object FiltersToMongo {
       case a contains hd :: tl => toMongo(Filter.||(Filter.==(a, hd), Filter.contains(a, tl)))
       case a in list => Some(Filters.in(a.path, list:_*))
       case a notIn list => Some(Filters.nin(a.path, list:_*))
-      case a && b => toMongo(a).zip(toMongo(b)).map(Filters.and(_:_*))
-      case a || b => toMongo(a).zip(toMongo(b)).map(Filters.or(_:_*))
+      case a && b => toMongo(a).zip(toMongo(b)).map(x => Filters.and(x._1, x._2))
+      case a || b => toMongo(a).zip(toMongo(b)).map(x => Filters.or(x._1, x._2))
     }
   }
 
