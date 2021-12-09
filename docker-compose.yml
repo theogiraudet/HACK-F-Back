@@ -18,7 +18,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: root
-      ME_CONFIG_MONGODB_URL: mongodb://root:root@148.60.11.201:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongo:27017/
 
   backend:
     image: backend-hack

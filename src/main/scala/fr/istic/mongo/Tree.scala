@@ -1,4 +1,4 @@
-package fr.istic
+package fr.istic.mongo
 
 import org.mongodb.scala.Document
 import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonValue}
@@ -51,7 +51,7 @@ object Tree {
     }
   }
 
-  def bsonToList(value: BsonDocument) = value.entrySet().asScala.map(e => (e.getKey, e.getValue)).map(getSchema).toList
+  private def bsonToList(value: BsonDocument) = value.entrySet().asScala.map(e => (e.getKey, e.getValue)).map(getSchema).toList
 
   def toString(tree: Tree, indent: Int = 0): String = {
     tree match {

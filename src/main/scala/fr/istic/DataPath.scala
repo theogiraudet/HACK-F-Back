@@ -1,6 +1,6 @@
 package fr.istic
 
-import fr.istic.Tree.{Leaf, Node, Tree}
+import fr.istic.mongo.Tree.{Leaf, Node, Tree}
 
 import java.util.logging.Logger
 

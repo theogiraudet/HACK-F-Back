@@ -3,6 +3,9 @@ package fr.istic.tp.spring.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.istic.Database;
+import fr.istic.mongo.MongoDatabase;
+import fr.istic.parsers.FilterParser;
+import fr.istic.parsers.SortingParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -27,19 +30,25 @@ public class ArtistResource {
     @Autowired
     private ObjectMapper mapper;
 
+    private Database database;
+
     @Value( "${database.url}" )
     private String url;
 
     @PostConstruct
     private void initialize() {
         logger.info("Initialise database API...");
-        Database.init(url);
+        database = new MongoDatabase(url, "hack", "artists");
     }
 
     @GetMapping(value = "/artists", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getArtists(@RequestParam(required = false, defaultValue = "") String filter) throws JsonProcessingException {
+    public ResponseEntity<String> getArtists(@RequestParam(required = false, defaultValue = "") String filter, @RequestParam(required = false, defaultValue = "") String order) throws JsonProcessingException {
         logger.info("Receive request on /artists");
-        final var result = Database.read(filter);
+        final var parse = FilterParser.analyserFilter(filter);
+        final var parseOrder = SortingParser.analyserSorting(order);
+        final var result = parse
+                .flatMap(x -> parseOrder
+                        .flatMap(y -> database.createReadQuery().apply(x).apply(y).send()));
         if (result.isFailure()) {
             final var msg = ((Failure<String>) result).exception().getMessage();
             return ResponseEntity.badRequest().body("{ \"error\": \"" +  msg + "\"}");
