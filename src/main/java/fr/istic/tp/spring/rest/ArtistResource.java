@@ -35,7 +35,7 @@ public class ArtistResource {
     }
 
     @GetMapping(value = "/artists", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getArtists(@RequestParam String filter) throws JsonProcessingException {
+    public ResponseEntity<String> getArtists(@RequestParam(required = false, defaultValue = "") String filter) throws JsonProcessingException {
         logger.info("Receive request on /artists");
         final var result = Database.read(filter);
         if (result.isFailure()) {

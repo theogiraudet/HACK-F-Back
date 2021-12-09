@@ -14,7 +14,7 @@ object Database {
 
   private var url = ""
   private val databaseName = "hack"
-  private val collectionName = "test"
+  private val collectionName = "artists"
   lazy private val collection: MongoCollection[Document] = {
     val mongoClient = MongoClient(url)
     val database = mongoClient.getDatabase(databaseName)
@@ -31,7 +31,7 @@ object Database {
   }
 
   def read(query: String): Try[String] = {
-    val result = QueryParser.analyserFilter(query)
+    val result = FilterParser.analyserFilter(query)
       .map(FiltersToMongo.toMongo)
       .flatMap(awaitGet)
       .map("[" + _.toList.map(x => x.toJson).mkString(",") +" ]")
@@ -39,8 +39,8 @@ object Database {
     result
   }
 
-  private def awaitGet(bson: Bson) = {
-    val future = collection.find(bson).toFuture()
+  private def awaitGet(bson: Option[Bson]) = {
+    val future = bson.map(collection.find(_)).getOrElse(collection.find()).toFuture()
     Await.ready(future, Duration.Inf)
     future.value.get.map(x => x.map(_ - "_id"))
   }

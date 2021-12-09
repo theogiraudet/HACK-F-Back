@@ -26,4 +26,6 @@ object Filter {
   case class &&(filter1: Filter, Filter2: Filter) extends Filter
 
   case class ||(filter1: Filter, Filter2: Filter) extends Filter
+
+  case object noFilter extends Filter
 }

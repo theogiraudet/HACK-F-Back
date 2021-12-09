@@ -5,7 +5,7 @@ import fr.istic.Filter.Filter
 import scala.util.Try
 import scala.util.parsing.combinator.RegexParsers
 
-object QueryParser extends RegexParsers {
+object FilterParser extends RegexParsers {
 
   def operator: Parser[Filter] = and | or | isNull | eq | neq | lt | lte | gt | gte | contains | in | nin
 
@@ -36,11 +36,14 @@ object QueryParser extends RegexParsers {
   private def integer: Parser[Int] = """\d+""".r ^^ { _.toInt }
 
   def analyserFilter(s: String): Try[Filter] = {
-    QueryParser.parseAll(operator, s) match {
-      case Success(result, _) => scala.util.Success(result)
-      case Failure(msg, _)    => scala.util.Failure(new Exception("FAILURE: " + msg))
-      case Error(msg, _)      => scala.util.Failure(new Exception("ERROR: " + msg))
-    }
+    if(s == "")
+      scala.util.Success(Filter.noFilter)
+      else
+        FilterParser.parseAll(operator, s) match {
+          case Success(result, _) => scala.util.Success(result)
+          case Failure(msg, _)    => scala.util.Failure(new Exception("FAILURE: " + msg))
+          case Error(msg, _)      => scala.util.Failure(new Exception("ERROR: " + msg))
+        }
   }
 
 
