@@ -42,4 +42,8 @@ object QueryParameters {
   case class orderBy(sorting: List[Sorting]) extends Sorting
   case object NoSorting extends Sorting
 
+  sealed trait Limit extends QueryParameter
+  case class LimitQuery(limit: Int) extends Limit
+  case object NoLimit extends Limit
+
 }

@@ -16,11 +16,13 @@ class MongoQuery(private val collection: MongoCollection[Document]) extends Quer
 
   private var filter: List[Filter] = List()
   private var sorting: List[Sorting] = List()
+  private var limit: Limit = NoLimit
 
   def apply(parameter: QueryParameter): Query = {
     parameter match {
       case x: Filter => filter ::= x
       case x: Sorting => sorting ::= x
+      case x: Limit => limit = x
     }
     this
   }
@@ -38,7 +40,9 @@ class MongoQuery(private val collection: MongoCollection[Document]) extends Quer
       .map(filterApplied.sort)
       .getOrElse(filterApplied)
 
-    val future = sortApplied.toFuture()
+    val limitApplied = if(limit != NoLimit) sortApplied.limit(limit.asInstanceOf[LimitQuery].limit) else sortApplied
+
+    val future = limitApplied.toFuture()
     Await.ready(future, Duration.Inf)
     future.value.get.map(x => x.map(_ - "_id")).map("[" + _.toList.map(x => x.toJson).mkString(",") + " ]")
   }
