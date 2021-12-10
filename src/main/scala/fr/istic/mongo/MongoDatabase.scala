@@ -1,13 +1,16 @@
 package fr.istic.mongo
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import fr.istic.mongo.Tree.{getSchema, merge}
-import fr.istic.{DataPath, Database, Query}
+import fr.istic.{Artist, DataPath, Database, Query}
 import org.mongodb.scala.{Document, MongoClient, MongoCollection}
 
 import java.util.logging.Logger
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
+import scala.util.Try
 
 class MongoDatabase(val url: String, val databaseName: String, val collectionName: String) extends Database {
 
@@ -25,7 +28,14 @@ class MongoDatabase(val url: String, val databaseName: String, val collectionNam
     Await.ready(future, Duration.Inf)
   }
 
-
+  def write(artist: Artist): Try[Unit] = {
+    val objectMapper = new ObjectMapper
+    objectMapper.registerModule(DefaultScalaModule)
+    val json = objectMapper.writeValueAsString(artist)
+    val future = collection.insertOne(Document(json)).toFuture()
+    Await.ready(future, Duration.Inf)
+    future.value.get.map(_ => ())
+  }
   def createReadQuery(): Query = new MongoQuery(collection)
 
 }

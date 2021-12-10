@@ -53,7 +53,7 @@ class MongoQuery(private val collection: MongoCollection[Document]) extends Quer
       case a <= b => Filters.lte(a.path, b)
       case a > b => Filters.gt(a.path, b)
       case a >= b => Filters.gte(a.path, b)
-      case a contains Nil => Filters.exists(a.path)
+      case a contains List() => Filters.exists(a.path)
       case a contains hd :: Nil => adaptFilter(QueryParameters.==(a, hd))
       case a contains hd :: tl => adaptFilter(QueryParameters.||(QueryParameters.==(a, hd), contains(a, tl)))
       case a in list => Filters.in(a.path, list: _*)

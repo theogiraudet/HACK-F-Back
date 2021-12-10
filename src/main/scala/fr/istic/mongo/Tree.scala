@@ -53,6 +53,15 @@ object Tree {
 
   private def bsonToList(value: BsonDocument) = value.entrySet().asScala.map(e => (e.getKey, e.getValue)).map(getSchema).toList
 
+  def isIncludedIn(tree1: Tree, tree2: Tree): Boolean = {
+    (tree1, tree2) match {
+      case (Leaf(a), Leaf(b)) => a == b
+      case (Node(name, l1), Node(name2, l2)) => name == name2 && l1.isEmpty == l2.isEmpty && l1.forall(x => l2.exists(isIncludedIn(x, _)))
+      case _ => false
+    }
+  }
+
+
   def toString(tree: Tree, indent: Int = 0): String = {
     tree match {
       case Leaf(str) => "\t".repeat(indent) + str + "\n"

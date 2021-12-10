@@ -2,6 +2,7 @@ package fr.istic.tp.spring.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.istic.Artist;
 import fr.istic.Database;
 import fr.istic.mongo.MongoDatabase;
 import fr.istic.parsers.FilterParser;
@@ -11,10 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import scala.util.Failure;
 
 import javax.annotation.PostConstruct;
@@ -32,7 +30,7 @@ public class ArtistResource {
 
     private Database database;
 
-    @Value( "${database.url}" )
+    @Value("${database.url}")
     private String url;
 
     @PostConstruct
@@ -51,13 +49,22 @@ public class ArtistResource {
                         .flatMap(y -> database.createReadQuery().apply(x).apply(y).send()));
         if (result.isFailure()) {
             final var msg = ((Failure<String>) result).exception().getMessage();
-            return ResponseEntity.badRequest().body("{ \"error\": \"" +  msg + "\"}");
+            return ResponseEntity.badRequest().body("{ \"error\": \"" + msg + "\"}");
         } else {
             final var msg = result.get();
             final Object json = mapper.readValue(msg, Object.class);
             String indented = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
             return ResponseEntity.ok(indented);
         }
+    }
+
+    @PostMapping(value = "/artists", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> addArtist(@RequestBody Artist body) {
+        var result = database.write(body);
+        if (result.isSuccess())
+            return ResponseEntity.ok().build();
+        else
+            return ResponseEntity.badRequest().body(((Failure<?>) result).exception().getMessage());
     }
 
 }
